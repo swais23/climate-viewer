@@ -72,6 +72,11 @@ x-airflow-common:
     # The following line can be used to set a custom config file, stored in the local config folder
     # If you want to use it, outcomment it and replace airflow.cfg with the name of your config file
     # AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
+    # Our own variables
+    PG_DBNAME: ${PG_DBNAME:-.}
+    PG_USERNAME: ${PG_USERNAME:-.}
+    PG_PASSWORD: ${PG_PASSWORD:-.}
+    PG_PORT: ${PG_PORT:-.}
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -109,7 +114,9 @@ services:
     environment:
       POSTGRES_USER: exampleuser  # Set the PostgreSQL user
       POSTGRES_PASSWORD: examplepassword  # Set the PostgreSQL user password
-      POSTGRES_DB: exampledb  # Optional: Set the name of the default database
+      POSTGRES_DB: climate_viewer  # Optional: Set the name of the default database
+    volumes:
+      - climate-viewer-postgres-volume:/var/lib/postgresql/data
     ports:
       - "5432:5432"  # Map the container's port 5432 to the host
       
@@ -310,3 +317,4 @@ services:
 
 volumes:
   postgres-db-volume:
+  climate-viewer-postgres-volume:
