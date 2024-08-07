@@ -3,8 +3,13 @@ import logging
 from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from utils.noaa_utils import get_noaa_url, get_db_conn
+from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
+from utils.noaa_utils import get_noaa_url, get_db_conn, get_noaa_pivot_case_statements
 from queries.noaa_raw import noaa_raw_query
+from queries.noaa_pivot_query import noaa_pivot_query
+from utils.noaa_utils import get_noaa_pivot_case_statements
+from config import NOAA_ELEMENTS
+
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +44,15 @@ def noaa_backfill_raw(query: str, **kwargs) -> None:
     duckdb.execute(formatted_query)
 
 
+pivot_query = noaa_pivot_query.format(
+  noaa_pivot_case_statements=get_noaa_pivot_case_statements(NOAA_ELEMENTS),
+  column_list=', '.join(NOAA_ELEMENTS.values()),
+  start_date='{{ params.start_date }}',
+  end_date='{{ params.end_date }}'
+)
+
+logging.info(f"Running pivot query: \n{pivot_query}")
+
 with DAG(
     dag_id='noaa_backfill_dag',
     start_date=datetime(2024, 1, 1),
@@ -55,3 +69,11 @@ with DAG(
       provide_context=True,
       op_args=[noaa_raw_query]
     )
+
+    noaa_pivot_data = SQLExecuteQueryOperator(
+      task_id='noaa_pivot_data',
+      conn_id='postgres',
+      sql=pivot_query
+    )
+
+    noaa_raw_load >> noaa_pivot_data

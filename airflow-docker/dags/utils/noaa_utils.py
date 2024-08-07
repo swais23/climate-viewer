@@ -1,4 +1,6 @@
 import os
+from typing import Dict
+
 
 env = {**os.environ}
 
@@ -19,3 +21,14 @@ def get_db_conn() -> str:
   """
 
   return connection
+
+
+def get_noaa_pivot_case_statements(element_list: Dict[str, str]) -> str:
+  
+  case_statements = [
+    f"sum(case when \"element\" = '{element}' then data_value end) AS {element_list[element]}"
+    for element in element_list.keys()
+  ]
+
+  return ', '.join(case_statements)
+
