@@ -6,7 +6,7 @@ from airflow.operators.python import PythonOperator
 from utils.noaa_utils import get_noaa_url, get_db_conn
 from queries.noaa_raw import noaa_raw_query
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('airflow.task')
 
 params = {
     'start_date': '2024-01-01',
@@ -24,6 +24,7 @@ def noaa_backfill_raw(query: str, **kwargs) -> None:
   for year in range(start_date.year, end_date.year + 1):
 
     noaa_url = get_noaa_url(year)
+    logger.info(f'NOAA url: {noaa_url}')
 
     query_interval_start = max(start_date, datetime(year, 1, 1)).strftime('%Y%m%d')
     query_interval_end = min(end_date, datetime(year, 12, 31)).strftime('%Y%m%d')
@@ -34,9 +35,12 @@ def noaa_backfill_raw(query: str, **kwargs) -> None:
       end_date=query_interval_end
     )
 
-    logging.info(f'Backfilling range {query_interval_start} - {query_interval_end}.')
+    logger.info(f'Backfilling range {query_interval_start} - {query_interval_end}')
+    logger.info(f'Query to execute: \n {formatted_query}')
 
+    logger.info(f'Query start time: {datetime.now()}')
     duckdb.execute(formatted_query)
+    logger.info(f'Query end time: {datetime.now()}')
 
 
 with DAG(
@@ -45,7 +49,7 @@ with DAG(
     schedule=None,
     is_paused_upon_creation=True,
     catchup=False,
-    tags=['noaa_raw', 'backfill'],
+    tags=['noaa', 'backfill'],
     params=params
 ) as dag:
 
