@@ -1,58 +1,50 @@
-import os
-import csv
-import requests
+import duckdb
+import logging
 from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-import duckdb
+from utils.noaa_utils import get_noaa_url, get_db_conn
+from queries.noaa_raw import noaa_raw_query
+
+logger = logging.getLogger('airflow.task')
 
 
-config = {**os.environ}
+def noaa_daily_raw(query: str, **kwargs) -> None:
 
+  duckdb.execute(get_db_conn())
 
-def get_data_duckdb(**kwargs):
-  noaa_url = f"https://noaa-ghcn-pds.s3.amazonaws.com/csv/by_year/{kwargs['year']}.csv"
+  execution_date = kwargs['ds_nodash']
+  execution_year = datetime.strptime(execution_date, '%Y%m%d').year
 
-  duckdb.execute(f"""
-    ATTACH 'dbname={config["PG_DBNAME"]} user={config["PG_USERNAME"]} password={config["PG_PASSWORD"]} host=postgres_db port={config["PG_PORT"]}' AS postgres_db (TYPE POSTGRES);
-                 
-    INSERT INTO postgres_db.noaa_daily_raw (
-      stationid, 
-      noaa_date, 
-      element, 
-      data_value, 
-      m_flag, 
-      q_flag, 
-      s_flag, 
-      obs_time            
-    )
-    SELECT
-      ID,
-      DATE,
-      ELEMENT,
-      DATA_VALUE,
-      M_FLAG,
-      Q_FLAG,
-      S_FLAG,
-      OBS_TIME
-    FROM '{noaa_url}'
-    WHERE
-      Date = '{kwargs['ds_nodash']}'
-  """
+  noaa_url = get_noaa_url(execution_year)
+  logger.info(f'NOAA url: {noaa_url}')
+
+  formatted_query = query.format(
+    noaa_url=noaa_url,
+    start_date=execution_date,
+    end_date=execution_date
   )
+
+  logger.info(f'Loading data for {execution_date}')
+  logger.info(f'Query to execute: \n {formatted_query}')
+
+  logger.info(f'Query start time: {datetime.now()}')
+  duckdb.execute(formatted_query)
+  logger.info(f'Query end time: {datetime.now()}')
 
 
 with DAG(
-    dag_id="noaa_duckdb_dag",
+    dag_id='noaa_daily_dag',
     start_date=datetime(2024, 1, 1),
-    schedule="0 0 * * *",
+    schedule='0 0 * * *', # TODO: Determine a logical schedule
     is_paused_upon_creation=True,
     catchup=False,
     tags=['noaa']
 ) as dag:
-    get_daily_data = PythonOperator(
-      task_id="get_daily_data",
-      python_callable=get_data_duckdb,
+    
+    noaa_raw_load = PythonOperator(
+      task_id='noaa_raw_load',
+      python_callable=noaa_daily_raw,
       provide_context=True,
-      op_kwargs={'year': 2024}
+      op_args=[noaa_raw_query]
     )
