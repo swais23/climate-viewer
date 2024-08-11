@@ -26,8 +26,8 @@ def get_db_conn() -> str:
 def get_noaa_pivot_case_statements(element_list: Dict[str, str]) -> str:
   
   case_statements = [
-    f"sum(case when \"element\" = '{element}' then data_value end) AS {element_list[element]}"
-    for element in element_list.keys()
+    f"sum(case when \"element\" = '{element}' then {'data_value * ' + str(multiplier) if multiplier else 'data_value'} end) AS {column_name}"
+    for element, column_name, multiplier in element_list
   ]
 
   return ', '.join(case_statements)

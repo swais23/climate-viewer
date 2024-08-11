@@ -46,7 +46,7 @@ def noaa_backfill_raw(query: str, **kwargs) -> None:
 
 pivot_query = noaa_pivot_query.format(
   noaa_pivot_case_statements=get_noaa_pivot_case_statements(NOAA_ELEMENTS),
-  column_list=', '.join(NOAA_ELEMENTS.values()),
+  column_list=', '.join([element[1] for element in NOAA_ELEMENTS]),
   start_date='{{ params.start_date }}',
   end_date='{{ params.end_date }}'
 )
