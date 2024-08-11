@@ -1,5 +1,5 @@
 import os
-from typing import Dict
+from typing import List, Tuple
 
 
 env = {**os.environ}
@@ -23,10 +23,10 @@ def get_db_conn() -> str:
   return connection
 
 
-def get_noaa_pivot_case_statements(element_list: Dict[str, str]) -> str:
+def get_noaa_pivot_case_statements(element_list: List[Tuple]) -> str:
   
   case_statements = [
-    f"sum(case when \"element\" = '{element}' then {'data_value * ' + str(multiplier) if multiplier else 'data_value'} end) AS {column_name}"
+    f"sum(case when \"element\" = '{element}' then data_value * {multiplier} end) AS {column_name}"
     for element, column_name, multiplier in element_list
   ]
 

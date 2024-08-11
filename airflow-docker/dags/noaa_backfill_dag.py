@@ -7,7 +7,6 @@ from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from utils.noaa_utils import get_noaa_url, get_db_conn, get_noaa_pivot_case_statements
 from queries.noaa_raw import noaa_raw_query
 from queries.noaa_pivot_query import noaa_pivot_query
-from utils.noaa_utils import get_noaa_pivot_case_statements
 from config import NOAA_ELEMENTS
 
 
@@ -55,7 +54,6 @@ pivot_query = noaa_pivot_query.format(
   end_date='{{ params.end_date }}'
 )
 
-logging.info(f"Running pivot query: \n{pivot_query}")
 
 with DAG(
     dag_id='noaa_backfill_dag',

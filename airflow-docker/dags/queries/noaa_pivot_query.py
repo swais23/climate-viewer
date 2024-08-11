@@ -6,10 +6,10 @@ INSERT INTO climate_viewer.reporting.noaa_daily (
 	,{column_list}
 )
 SELECT
-	to_date(noaa_date, 'YYYYMMDD') "noaa_date"
+	to_date(noaa_date, 'YYYYMMDD') AS noaa_date
 	,stationid
 	,{noaa_pivot_case_statements}
-FROM public.noaa_daily_raw
+FROM climate_viewer.public.noaa_daily_raw
 WHERE
 	to_date(noaa_date, 'YYYYMMDD') BETWEEN '{start_date}' AND '{end_date}'
 GROUP BY
