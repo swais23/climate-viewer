@@ -1,8 +1,8 @@
 noaa_raw_query = """
   DELETE FROM postgres_db.noaa_daily_raw
-  WHERE 
-    strptime(noaa_date, '%Y%m%d') >= strptime('{start_date}', '%Y%m%d')
-    AND strptime(noaa_date, '%Y%m%d') <= strptime('{end_date}', '%Y%m%d');
+  WHERE
+    strptime(noaa_date, '%Y%m%d') BETWEEN
+    strptime('{start_date}', '%Y%m%d') AND strptime('{end_date}', '%Y%m%d');
 
   INSERT INTO postgres_db.noaa_daily_raw (
     stationid, 
