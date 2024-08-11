@@ -1,0 +1,20 @@
+CREATE TABLE climate_viewer.reporting.noaa_daily (
+	reportingid integer primary key generated always as identity,
+	stationid varchar(100) not null,
+	noaa_date date not null,
+	average_dew_point float,
+	average_wind_direction integer,
+	average_wind_speed float,
+	percent_possible_sunshine decimal(4, 3),
+	precipitation float,
+	snowfall integer,
+	snow_depth integer,
+	max_temperature float,
+	min_temperature float,
+	avg_hourly_temperature float,
+	avg_humidity decimal(4, 3),
+	min_humidity decimal(4, 3),
+	max_humidity decimal(4, 3),
+	sunshine_minutes integer,
+	peak_gust_wind_speed float
+)
