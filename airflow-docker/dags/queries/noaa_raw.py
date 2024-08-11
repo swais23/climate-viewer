@@ -1,4 +1,9 @@
 noaa_raw_query = """
+  DELETE FROM postgres_db.noaa_daily_raw
+  WHERE
+    strptime(noaa_date, '%Y%m%d') BETWEEN
+    strptime('{start_date}', '%Y%m%d') AND strptime('{end_date}', '%Y%m%d');
+
   INSERT INTO postgres_db.noaa_daily_raw (
     stationid, 
     noaa_date, 
@@ -20,5 +25,6 @@ noaa_raw_query = """
       OBS_TIME
     FROM '{noaa_url}'
     WHERE
+      -- duckdb interprets DATE (format='%Y%m%d') as BIGINT
       DATE BETWEEN '{start_date}' AND '{end_date}'
 """
