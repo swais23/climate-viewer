@@ -49,8 +49,8 @@ x-airflow-common:
   # In order to add custom dependencies or upgrade provider packages you can use your extended image.
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.9.2}
-  # build: .
+  # image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.9.2}
+  build: .
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
@@ -72,11 +72,11 @@ x-airflow-common:
     # The following line can be used to set a custom config file, stored in the local config folder
     # If you want to use it, outcomment it and replace airflow.cfg with the name of your config file
     # AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
-    # Our own variables
-    PG_DBNAME: ${PG_DBNAME:-.}
-    PG_USERNAME: ${PG_USERNAME:-.}
-    PG_PASSWORD: ${PG_PASSWORD:-.}
-    PG_PORT: ${PG_PORT:-.}
+    # Postgres env vars
+    PG_DBNAME: ${PG_DBNAME}
+    PG_USERNAME: ${PG_USERNAME}
+    PG_PASSWORD: ${PG_PASSWORD}
+    PG_PORT: ${PG_PORT}
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -108,29 +108,17 @@ services:
     restart: always
 
   db:
-    image: postgres:13  # Use the latest official PostgreSQL image
+    image: postgres:16  # Use the official PostgreSQL image
     container_name: postgres_db  # Optional: Name the container
     hostname: postgres_db
     environment:
-      POSTGRES_USER: exampleuser  # Set the PostgreSQL user
-      POSTGRES_PASSWORD: examplepassword  # Set the PostgreSQL user password
-      POSTGRES_DB: climate_viewer  # Optional: Set the name of the default database
+      POSTGRES_USER: ${PG_USERNAME}  # Set the PostgreSQL user
+      POSTGRES_PASSWORD: ${PG_PASSWORD}  # Set the PostgreSQL user password
+      POSTGRES_DB: ${PG_DBNAME}  # Optional: Set the name of the default database
     volumes:
       - climate-viewer-postgres-volume:/var/lib/postgresql/data
     ports:
       - "5432:5432"  # Map the container's port 5432 to the host
-      
-  python:
-    build:
-      dockerfile: Dockerfile
-    container_name: python
-    profiles: ["python"]
-    stdin_open: true
-    tty: true
-    command: /bin/bash
-    volumes:
-      - ./src:/src
-      - ./requirements:/requirements
 
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
