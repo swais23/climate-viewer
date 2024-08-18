@@ -73,10 +73,8 @@ x-airflow-common:
     # If you want to use it, outcomment it and replace airflow.cfg with the name of your config file
     # AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
     # Postgres env vars
-    PG_DBNAME: ${PG_DBNAME}
     PG_USERNAME: ${PG_USERNAME}
     PG_PASSWORD: ${PG_PASSWORD}
-    PG_PORT: ${PG_PORT}
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -114,7 +112,7 @@ services:
     environment:
       POSTGRES_USER: ${PG_USERNAME}  # Set the PostgreSQL user
       POSTGRES_PASSWORD: ${PG_PASSWORD}  # Set the PostgreSQL user password
-      POSTGRES_DB: ${PG_DBNAME}  # Optional: Set the name of the default database
+      POSTGRES_DB: climate_viewer  # Optional: Set the name of the default database
     volumes:
       - climate-viewer-postgres-volume:/var/lib/postgresql/data
     ports:
