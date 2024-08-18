@@ -1,10 +1,10 @@
 noaa_raw_query = """
-  DELETE FROM postgres_db.noaa_daily_raw
+  DELETE FROM climate_viewer.raw.noaa_daily_raw
   WHERE
-    strptime(noaa_date, '%Y%m%d') BETWEEN
-    strptime('{start_date}', '%Y%m%d') AND strptime('{end_date}', '%Y%m%d');
+    noaa_date BETWEEN cast(strptime('{start_date}', '%Y%m%d') as DATE) 
+    AND cast(strptime('{end_date}', '%Y%m%d') as DATE);
 
-  INSERT INTO postgres_db.noaa_daily_raw (
+  INSERT INTO climate_viewer.raw.noaa_daily_raw (
     stationid, 
     noaa_date, 
     element, 
@@ -16,7 +16,7 @@ noaa_raw_query = """
     )
     SELECT
       ID,
-      DATE,
+      cast(strptime(cast(DATE AS STRING), '%Y%m%d') as DATE),
       ELEMENT,
       DATA_VALUE,
       M_FLAG,

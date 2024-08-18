@@ -17,7 +17,7 @@ def get_db_conn() -> str:
   connection = f"""
     ATTACH
     'dbname={env["PG_DBNAME"]} user={env["PG_USERNAME"]} password={env["PG_PASSWORD"]} host=postgres_db port={env["PG_PORT"]}'
-    AS postgres_db (TYPE POSTGRES)
+    AS climate_viewer (TYPE POSTGRES)
   """
 
   return connection
