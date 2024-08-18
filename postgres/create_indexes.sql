@@ -1,0 +1,2 @@
+CREATE INDEX stationid_date_element_idx ON climate_viewer.raw.noaa_daily_raw (stationid, noaa_date, "element");
+CREATE INDEX stationid_date_idx ON climate_viewer.reporting.noaa_daily (stationid, noaa_date);
