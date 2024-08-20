@@ -1,8 +1,11 @@
-run-airflow:
-	docker compose up -d --no-attach python
+PYTHON_IMAGE = python:3.11-slim
+AIRFLOW_VERSION = 2.9.2
 
-run-python:
-	docker compose run --rm python
+build:
+	docker compose build
+	
+run:
+	docker compose up -d
 
-regenerate-requirements:
-	docker compose run python sh -c "cd ../requirements && pip-compile -U --resolver=backtracking"
+compile-requirements:
+	docker run --rm -v $(shell pwd)/requirements:/requirements -w /requirements $(PYTHON_IMAGE) sh -c "pip install pip-tools && pip-compile -U --upgrade-package apache-airflow==$(AIRFLOW_VERSION) --resolver=backtracking"
