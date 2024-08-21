@@ -1,9 +1,5 @@
-# Use a base image with Python
-FROM python:3.8-slim AS base
+FROM apache/airflow:2.9.2
 
 # Install packages
 COPY requirements/*.txt /req/
-RUN cd /req; pip install pip-tools; pip install -r requirements.txt
-
-# Set working directory
-WORKDIR /src
+RUN cd /req && pip install --no-cache-dir -r requirements.txt
