@@ -41,7 +41,11 @@ pivot_query = noaa_pivot_query.format(
   noaa_pivot_case_statements=get_noaa_pivot_case_statements(NOAA_ELEMENTS),
   column_list=', '.join([element[1] for element in NOAA_ELEMENTS]),
   start_date='{{ ds }}',
-  end_date='{{ ds }}'
+  end_date='{{ ds }}',
+  merge_update_statements=', '.join(
+    [f'{element[1]} = src.{element[1]}' for element in NOAA_ELEMENTS]
+  ),
+  merge_insert_list=', '.join([f'src.{element[1]}' for element in NOAA_ELEMENTS])
 )
 
 
