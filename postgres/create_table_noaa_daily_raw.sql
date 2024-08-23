@@ -1,4 +1,4 @@
-CREATE TABLE climate_viewer.raw.noaa_daily_raw (
+CREATE TABLE climate_viewer.raw.noaa_daily (
 	stationid varchar(20) not null,
 	noaa_date date not null,
 	"element" char(4) not null,

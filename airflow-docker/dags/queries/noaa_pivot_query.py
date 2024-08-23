@@ -5,7 +5,7 @@ WITH SourceQuery AS (
 		noaa_date
 		,stationid
 		,{noaa_pivot_case_statements}
-	FROM climate_viewer.raw.noaa_daily_raw
+	FROM climate_viewer.raw.noaa_daily
 	WHERE
 		noaa_date BETWEEN '{start_date}' AND '{end_date}'
 	GROUP BY
