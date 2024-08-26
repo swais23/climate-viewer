@@ -6,77 +6,53 @@ import duckdb
 from utils.noaa_utils import get_db_conn
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from queries.noaa_stations_query import noaa_stations_query
+from config import NOAA_STATIONS_FILE_URL, NOAA_STATIONS_FILE_DEFINITION
+import logging
 
 
-column_specs = [
-  (0, 11),
-  (12, 20),
-  (21, 30),
-  (31, 37),
-  (38, 40),
-  (41, 71),
-  (72, 75),
-  (76, 79),
-  (80, 85)
-]
-
-column_names = [
-  'ID',
-  'LATITUDE',
-  'LONGITUDE',
-  'ELEVATION',
-  'STATE',
-  'NAME',
-  'GSN_FLAG',
-  'HCN_CRN_FLAG',
-  'WMO_ID'
-]
+logger = logging.getLogger('airflow.task')
 
 
 def noaa_stations() -> None:
 
-  response = requests.get('https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt', verify=False)
+  logger.info(f"Pulling NOAA station lookup data from {NOAA_STATIONS_FILE_URL}")
+  # Pull text content from .txt file at specified URL
+  response = requests.get(NOAA_STATIONS_FILE_URL, verify=False)
+  # Place into in-memory file so that Pandas fixed-width file (fwf) function can read it
   stations_file = StringIO(response.text)
 
-  df = pd.read_fwf(stations_file, colspecs=column_specs, names=column_names)
-  df = df.astype({'WMO_ID': 'Int64'})  # this integer type is necessary to allow nulls
+  column_specs = [
+    (station_column.start_position, station_column.end_position) 
+    for station_column in NOAA_STATIONS_FILE_DEFINITION
+  ]
+  column_names = [station_column.column_name for station_column in NOAA_STATIONS_FILE_DEFINITION]
 
-  stations_file.close()  # explicitly close in-memory file
-  print(df.head())  # TODO: Replace this with logging
-  print('\n\n', df.info())
+  # load fixed-width file into Pandas dataframe, which DuckDB will then read
+  df = pd.read_fwf(stations_file, colspecs=column_specs, names=column_names)
+  # df = df.astype({'WMO_ID': 'Int64'})  # this integer type is necessary to allow nulls
+
+  # explicitly close in-memory file
+  stations_file.close()
+
+  # Format query with column names from config file
+  stations_query = noaa_stations_query.format(
+    station_columns=', '.join(column_names)
+  )
 
   duckdb.execute(get_db_conn())
-  duckdb.execute("""
-    INSERT INTO climate_viewer.lkp.stations (
-      stationid
-      ,latitude
-      ,longitude
-      ,elevation
-      ,state_code
-      ,station_name
-      ,gsn_flag
-      ,hcn_crn_flag
-      ,wmo_id
-    )
-    SELECT
-      ID,
-      LATITUDE,
-      LONGITUDE,
-      ELEVATION,
-      STATE,
-      NAME,
-      GSN_FLAG,
-      HCN_CRN_FLAG,
-      WMO_ID
-    FROM
-      df
-  """)
+
+  # Explicitly log query text since DAG is not using SQL Operator, which logs query automatically
+  logger.info(f'Query to execute: \n {stations_query}')
+  logger.info(f'Query start time: {datetime.now()}')
+  duckdb.execute(stations_query)
+  logger.info(f'Query end time: {datetime.now()}')
 
 
 with DAG(
   dag_id='noaa_stations_dag',
   start_date=datetime(2024, 1, 1),
-  schedule=None,  # TODO: Learn chron syntax and set to run monthly
+  schedule='0 0 1 * *',  # Once a month at midnight on the 1st day of the month
   is_paused_upon_creation=True,
   catchup=False,
   tags=['noaa']
@@ -87,20 +63,3 @@ with DAG(
     python_callable=noaa_stations,
     provide_context=True
   )
-
-
-# IV. FORMAT OF "ghcnd-stations.txt"
-
-# ------------------------------
-# Variable   Columns   Type
-# ------------------------------
-# ID            1-11   Character
-# LATITUDE     13-20   Real
-# LONGITUDE    22-30   Real
-# ELEVATION    32-37   Real
-# STATE        39-40   Character
-# NAME         42-71   Character
-# GSN FLAG     73-75   Character
-# HCN/CRN FLAG 77-79   Character
-# WMO ID       81-85   Character
-# ------------------------------
