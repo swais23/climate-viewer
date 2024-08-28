@@ -16,15 +16,20 @@ noaa_raw_query = """
     )
     SELECT
       ID,
-      cast(strptime(cast(DATE AS STRING), '%Y%m%d') AS DATE),
+      DATE,
       ELEMENT,
       DATA_VALUE,
       M_FLAG,
       Q_FLAG,
       S_FLAG,
       OBS_TIME
-    FROM '{noaa_url}'
+    FROM read_csv(
+      '{noaa_url}',
+      header = true,
+      columns = {raw_columns},
+      dateformat = '%Y%m%d'
+      )
     WHERE
-      -- duckdb interprets DATE (format='%Y%m%d') as BIGINT
-      DATE BETWEEN '{start_date}' AND '{end_date}'
+      DATE BETWEEN cast(strptime('{start_date}', '%Y%m%d') AS DATE)
+      AND cast(strptime('{end_date}', '%Y%m%d') AS DATE)
 """
