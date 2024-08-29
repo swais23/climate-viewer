@@ -7,7 +7,7 @@ from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from utils.noaa_utils import get_noaa_url, get_db_conn, get_noaa_pivot_case_statements
 from queries.noaa_raw import noaa_raw_query
 from queries.noaa_pivot_query import noaa_pivot_query
-from config import NOAA_ELEMENTS
+from config import NOAA_RAW_COLUMNS, NOAA_ELEMENTS
 
 
 logger = logging.getLogger('airflow.task')
@@ -35,6 +35,7 @@ def noaa_backfill_raw(query: str, **kwargs) -> None:
 
     formatted_query = query.format(
       noaa_url=noaa_url,
+      raw_columns=NOAA_RAW_COLUMNS,
       start_date=query_interval_start,
       end_date=query_interval_end
     )

@@ -1,6 +1,17 @@
 from collections import namedtuple
 
 
+NOAA_RAW_COLUMNS = {
+    'ID': 'VARCHAR',
+    'DATE': 'DATE',
+    'ELEMENT': 'VARCHAR',
+    'DATA_VALUE': 'BIGINT',
+    'M_FLAG': 'VARCHAR',
+    'Q_FLAG': 'VARCHAR',
+    'S_FLAG': 'VARCHAR',
+    'OBS_TIME': 'INTEGER'
+}
+
 NOAA_ELEMENTS = [
   ("ADPT", 'average_dew_point', 0.1),  # tenths of degrees C --> FLOAT
   ("AWDR", 'average_wind_direction', 1),  # degrees --> integer
