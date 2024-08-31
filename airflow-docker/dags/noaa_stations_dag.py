@@ -1,14 +1,14 @@
 import requests
-from datetime import datetime
 import pandas as pd
-from io import StringIO
 import duckdb
-from utils.noaa_utils import get_db_conn
+import logging
+from datetime import datetime
+from io import StringIO
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from queries.noaa_stations_query import noaa_stations_query
+from utils.noaa_utils import get_db_conn
 from config import NOAA_STATIONS_FILE_URL, NOAA_STATIONS_FILE_DEFINITION
-import logging
 
 
 logger = logging.getLogger('airflow.task')
@@ -30,12 +30,9 @@ def noaa_stations() -> None:
 
   # load fixed-width file into Pandas dataframe, which DuckDB will then read
   df = pd.read_fwf(stations_file, colspecs=column_specs, names=column_names)
-  # df = df.astype({'WMO_ID': 'Int64'})  # this integer type is necessary to allow nulls
 
-  # explicitly close in-memory file
   stations_file.close()
 
-  # Format query with column names from config file
   stations_query = noaa_stations_query.format(
     station_columns=', '.join(column_names)
   )
@@ -52,7 +49,7 @@ def noaa_stations() -> None:
 with DAG(
   dag_id='noaa_stations_dag',
   start_date=datetime(2024, 1, 1),
-  schedule='0 0 1 * *',  # Once a month at midnight on the 1st day of the month
+  schedule=None,
   is_paused_upon_creation=True,
   catchup=False,
   tags=['noaa']
@@ -60,6 +57,5 @@ with DAG(
   
   noaa_stations_load = PythonOperator(
     task_id='noaa_stations_load',
-    python_callable=noaa_stations,
-    provide_context=True
+    python_callable=noaa_stations
   )

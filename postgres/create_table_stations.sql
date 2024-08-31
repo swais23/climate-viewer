@@ -1,4 +1,4 @@
-CREATE TABLE climate_viewer.lkp.stations (
+CREATE TABLE climate_viewer.lookup.stations (
 	stationid varchar(20) PRIMARY KEY not null,
 	latitude decimal(8, 4) not null,
 	longitude decimal(8, 4) not null,

@@ -32,9 +32,7 @@ NOAA_ELEMENTS = [
 
 NOAA_STATIONS_FILE_URL = "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt"
 
-# Named tuple intended to be a private class for creation of config variable for NOAA stations file definition
 _Station = namedtuple('Station', ['column_name', 'start_position', 'end_position'])
-
 # File format as defined under 'IV. FORMAT OF "ghcnd-stations.txt"' in https://www.ncei.noaa.gov/pub/data/ghcn/daily/readme.txt
 NOAA_STATIONS_FILE_DEFINITION = [
   _Station('stationid', 0, 11),

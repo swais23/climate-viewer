@@ -1,8 +1,8 @@
 
 noaa_stations_query = """
-  DELETE FROM climate_viewer.lkp.stations;
+  DELETE FROM climate_viewer.lookup.stations;
   
-  INSERT INTO climate_viewer.lkp.stations (
+  INSERT INTO climate_viewer.lookup.stations (
     {station_columns}
   )
   SELECT
