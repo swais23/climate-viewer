@@ -106,7 +106,7 @@ services:
     restart: always
 
   db:
-    image: postgres:16  # Use the official PostgreSQL image
+    image: postgis/postgis:16-3.4  # Use the official PostGIS image to enable spatial analysis
     container_name: postgres_db  # Optional: Name the container
     hostname: postgres_db
     environment:

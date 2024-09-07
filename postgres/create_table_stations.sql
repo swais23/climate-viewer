@@ -7,5 +7,6 @@ CREATE TABLE climate_viewer.lookup.stations (
 	station_name varchar(30) not null,
 	gsn_flag char(3),
 	hcn_crn_flag char(3),
-	wmo_id integer
+	wmo_id integer,
+	geom geometry(Point, 4326) GENERATED ALWAYS AS (ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)) STORED
 )
