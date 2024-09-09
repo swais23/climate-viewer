@@ -106,7 +106,7 @@ services:
     restart: always
 
   db:
-    image: postgis/postgis:16-3.4  # Use the official PostGIS image to enable spatial analysis
+    build: ./Dockerfile_PostGIS  # adds init script to official PostGIS image
     container_name: postgres_db  # Optional: Name the container
     hostname: postgres_db
     environment:
@@ -115,6 +115,7 @@ services:
       POSTGRES_DB: climate_viewer  # Optional: Set the name of the default database
     volumes:
       - climate-viewer-postgres-volume:/var/lib/postgresql/data
+
     ports:
       - "5432:5432"  # Map the container's port 5432 to the host
 
