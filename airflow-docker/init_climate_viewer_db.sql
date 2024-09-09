@@ -65,6 +65,8 @@ CREATE INDEX stationid_date_element_idx ON climate_viewer.raw.noaa_daily (statio
 
 CREATE INDEX stationid_date_idx ON climate_viewer.reporting.noaa_daily (stationid, noaa_date);
 
+CREATE INDEX stationid_idx ON climate_viewer.lookup.stations (stationid);
+
 -- Extensions
 CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA reporting;
 
