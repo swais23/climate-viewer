@@ -1,17 +1,20 @@
 -- Databases
-CREATE DATABASE IF NOT EXISTS climate_viewer WITH ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'en_US.utf8';
+/* 
+Don't need to create climate_viewer database since already set as default database in Docker compose
+file and gets created automatically.
+*/
 
 \connect climate_viewer
 
 -- Schemas
-CREATE SCHEMA IF NOT EXISTS reporting;
+CREATE SCHEMA reporting;
 
-CREATE SCHEMA IF NOT EXISTS "raw";
+CREATE SCHEMA "raw";
 
-CREATE SCHEMA IF NOT EXISTS lookup;
+CREATE SCHEMA lookup;
 
 -- Tables
-CREATE TABLE IF NOT EXISTS climate_viewer.raw.noaa_daily (
+CREATE TABLE climate_viewer.raw.noaa_daily (
 	stationid varchar(20) not null,
 	noaa_date date not null,
 	"element" char(4) not null,
@@ -23,7 +26,7 @@ CREATE TABLE IF NOT EXISTS climate_viewer.raw.noaa_daily (
 	PRIMARY KEY (stationid, noaa_date, element)
 );
 
-CREATE TABLE IF NOT EXISTS climate_viewer.reporting.noaa_daily (
+CREATE TABLE climate_viewer.reporting.noaa_daily (
 	stationid varchar(20) not null,
 	noaa_date date not null,
 	average_dew_point float,
@@ -44,7 +47,7 @@ CREATE TABLE IF NOT EXISTS climate_viewer.reporting.noaa_daily (
 	PRIMARY KEY (stationid, noaa_date)
 );
 
-CREATE TABLE IF NOT EXISTS climate_viewer.lookup.stations (
+CREATE TABLE climate_viewer.lookup.stations (
 	stationid varchar(20) PRIMARY KEY not null,
 	latitude decimal(8, 4) not null,
 	longitude decimal(8, 4) not null,
@@ -58,9 +61,9 @@ CREATE TABLE IF NOT EXISTS climate_viewer.lookup.stations (
 );
 
 -- Indexes
-CREATE INDEX IF NOT EXISTS stationid_date_element_idx ON climate_viewer.raw.noaa_daily (stationid, noaa_date, "element");
+CREATE INDEX stationid_date_element_idx ON climate_viewer.raw.noaa_daily (stationid, noaa_date, "element");
 
-CREATE INDEX IF NOT EXISTS stationid_date_idx ON climate_viewer.reporting.noaa_daily (stationid, noaa_date);
+CREATE INDEX stationid_date_idx ON climate_viewer.reporting.noaa_daily (stationid, noaa_date);
 
 -- Extensions
 CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA reporting;

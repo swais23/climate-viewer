@@ -106,7 +106,9 @@ services:
     restart: always
 
   db:
-    build: ./Dockerfile_PostGIS  # adds init script to official PostGIS image
+    build: 
+      context: .
+      dockerfile: Dockerfile_PostGIS  # adds init script to official PostGIS image
     container_name: postgres_db  # Optional: Name the container
     hostname: postgres_db
     environment:
