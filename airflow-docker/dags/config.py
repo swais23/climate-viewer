@@ -1,4 +1,6 @@
 from collections import namedtuple
+from dataclasses import dataclass
+from typing import List, NamedTuple
 
 
 NOAA_RAW_COLUMNS = {
@@ -30,18 +32,46 @@ NOAA_ELEMENTS = [
   ("WSFG", 'peak_gust_wind_speed', 0.1)  # tenths of meters per second --> FLOAT
 ]
 
-NOAA_STATIONS_FILE_URL = "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt"
+_STATIONS_FILE_URL = "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt"
+_COUNTRIES_FILE_URL = "https://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-countries.txt"
+_STATES_FILE_URL = "https://noaa-ghcn-pds.s3.amazonaws.com/ghcnd-states.txt"
 
-_Station = namedtuple('Station', ['column_name', 'start_position', 'end_position'])
-# File format as defined under 'IV. FORMAT OF "ghcnd-stations.txt"' in https://www.ncei.noaa.gov/pub/data/ghcn/daily/readme.txt
-NOAA_STATIONS_FILE_DEFINITION = [
-  _Station('stationid', 0, 11),
-  _Station('latitude', 12, 20),
-  _Station('longitude', 21, 30),
-  _Station('elevation', 31, 37),
-  _Station('state_code', 38, 40),
-  _Station('station_name', 41, 71),
-  _Station('gsn_flag', 72, 75),
-  _Station('hcn_crn_flag', 76, 79),
-  _Station('wmo_id', 80, 85)
+# Store columns from fixed-width files as defined in https://www.ncei.noaa.gov/pub/data/ghcn/daily/readme.txt
+_Column = namedtuple('Column', ['column_name', 'start_position', 'end_position'])
+
+# File format as defined under 'IV. FORMAT OF "ghcnd-stations.txt"'
+_STATIONS_FILE_DEFINITION = [
+  _Column('stationid', 0, 11),
+  _Column('latitude', 12, 20),
+  _Column('longitude', 21, 30),
+  _Column('elevation', 31, 37),
+  _Column('state_code', 38, 40),
+  _Column('station_name', 41, 71),
+  _Column('gsn_flag', 72, 75),
+  _Column('hcn_crn_flag', 76, 79),
+  _Column('wmo_id', 80, 85)
+]
+
+# File format as defined under 'V. FORMAT OF "ghcnd-countries.txt"'
+_COUNTRIES_FILE_DEFINITION = [
+  _Column('country_code', 0, 2),
+  _Column('country_name', 3, 64)
+]
+
+# File format as defined under 'VI. FORMAT OF "ghcnd-states.txt"'
+_STATES_FILE_DEFINITION = [
+  _Column('state_code', 0, 2),
+  _Column('state_name', 3, 50)
+]
+
+@dataclass
+class NoaaLookup:
+  file_url: str
+  column_definition: List[NamedTuple]
+  table_name: str
+
+NOAA_LOOKUP_CONFIG = [
+  NoaaLookup(_STATIONS_FILE_URL, _STATIONS_FILE_DEFINITION, 'stations'),
+  NoaaLookup(_COUNTRIES_FILE_URL, _COUNTRIES_FILE_DEFINITION, 'countries'),
+  NoaaLookup(_STATES_FILE_URL, _STATES_FILE_DEFINITION, 'states')
 ]
