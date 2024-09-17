@@ -1,12 +1,12 @@
 
-noaa_stations_query = """
-  DELETE FROM climate_viewer.lookup.stations;
+noaa_lookup_query = """
+  TRUNCATE TABLE climate_viewer.lookup.{table};
   
-  INSERT INTO climate_viewer.lookup.stations (
-    {station_columns}
+  INSERT INTO climate_viewer.lookup.{table} (
+    {columns}
   )
   SELECT
-    {station_columns}
+    {columns}
   FROM
     df
 """
