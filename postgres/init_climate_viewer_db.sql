@@ -60,6 +60,16 @@ CREATE TABLE climate_viewer.lookup.stations (
 	geom geometry(Point, 4326) GENERATED ALWAYS AS (ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)) STORED
 );
 
+CREATE TABLE climate_viewer.lookup.countries (
+    country_code char(2) PRIMARY KEY not null,
+    country_name varchar(100) not null
+);
+
+CREATE TABLE climate_viewer.lookup.states (
+    state_code char(2) PRIMARY KEY not null,
+    state_name varchar(100) not null
+);
+
 -- Indexes
 CREATE INDEX stationid_date_element_idx ON climate_viewer.raw.noaa_daily (stationid, noaa_date, "element");
 
