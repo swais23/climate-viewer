@@ -7,5 +7,8 @@ build:
 run:
 	docker compose up -d
 
+purge-database:
+	docker compose down -v db && docker compose build db && docker compose up -d db
+
 compile-requirements:
 	docker run --rm -v $(shell pwd)/requirements:/requirements -w /requirements $(PYTHON_IMAGE) sh -c "pip install pip-tools && pip-compile -U --upgrade-package apache-airflow==$(AIRFLOW_VERSION) --resolver=backtracking"
