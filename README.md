@@ -6,10 +6,10 @@ This project sets up an Apache Airflow pipeline to ingest, transform, and store 
 ## Docker Setup
 This project uses Docker Compose to manage Airflow and a PostgreSQL database for storing transformed data.
 
-The `docker-compose.yaml` file is based on the official Airflow documentation ([link](https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#fetching-docker-compose-yaml)), with modifications to include a `db` service for storing data in PostgreSQL.
+The `docker-compose.yaml` file is based on the official [Airflow documentation](https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#fetching-docker-compose-yaml), with modifications to include a `db` service for storing data in PostgreSQL.
 
 ### Commands
-- **Build the containers:** `make build`
+- **Build the images:** `make build`
 - **Start services:** `make up`
 - **Stop services:** `make down`
 - **Purge the database:** `make purge-database`
@@ -29,18 +29,18 @@ The script runs automatically when the PostgreSQL container starts for the first
 ## DAGs
 
 ### `noaa_daily_dag`
-This DAG processes NOAA raw climate data from an S3 bucket, extracts relevant information, and transforms it into a structured format.
+This DAG processes NOAA climate data from an S3 bucket, extracts relevant information, and transforms it into a structured format.
 
 **Tasks:**
 1. `noaa_raw_load` - Loads raw daily NOAA data using DuckDB.
-2. `noaa_pivot_data` - Transforms raw data into a structured format in PostgreSQL.
+2. `noaa_pivot_data` - Reshapes and normalizes data in PostgreSQL.
 
 ### `noaa_backfill_dag`
-This DAG allows historical NOAA data backfilling of a user-defined date range.
+This DAG allows backfilling of historical NOAA data for a user-defined date range.
 
 **Tasks:**
 1. `noaa_raw_load` - Loads raw historical NOAA data using DuckDB.
-2. `noaa_pivot_data` - Transforms raw data into a structured format in PostgreSQL.
+2. `noaa_pivot_data` - Reshapes and normalizes data in PostgreSQL.
 
 ### `noaa_lookup_dag`
 This DAG manages lookup tables (stations, states, and countries) to support NOAA data enrichment.
