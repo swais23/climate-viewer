@@ -107,17 +107,16 @@ services:
 
   db:
     build: ../postgres
-    container_name: postgres_db  # Optional: Name the container
+    container_name: postgres_db
     hostname: postgres_db
     environment:
       POSTGRES_USER: ${PG_USERNAME}  # Set the PostgreSQL user
       POSTGRES_PASSWORD: ${PG_PASSWORD}  # Set the PostgreSQL user password
-      POSTGRES_DB: climate_viewer  # Optional: Set the name of the default database
+      POSTGRES_DB: climate_viewer  # Set the name of the default database
     volumes:
       - climate-viewer-postgres-volume:/var/lib/postgresql/data
-
     ports:
-      - "5432:5432"  # Map the container's port 5432 to the host
+      - "5432:5432"
 
   redis:
     # Redis is limited to 7.2-bookworm due to licencing change
