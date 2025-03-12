@@ -1,7 +1,7 @@
 # NOAA Airflow Pipeline
 
 ## Overview
-This project sets up an Apache Airflow pipeline to ingest, transform, and store NOAA climate data. The pipeline consists of multiple DAGs that handle daily ingestion, backfilling, and lookup table management.
+This project sets up an Apache Airflow pipeline to ingest, transform, and store [NOAA climate data](https://www.ncei.noaa.gov/metadata/geoportal/rest/metadata/item/gov.noaa.ncdc:C00861/html). The pipeline consists of multiple DAGs that handle daily ingestion, backfilling, and lookup table management.
 
 ## Docker Setup
 This project uses Docker Compose to manage Airflow and a PostgreSQL database for storing transformed data.
